@@ -28,3 +28,4 @@ replay_pid*
 /mvnw.cmd
 /testdb.mv.db
 /testdb.trace.db
+/target/
