@@ -5,16 +5,20 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "auto_user")
-public class User {
+@Table(name = "price_history")
+public class PriceHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private String login;
-    private String password;
+    private BigDecimal before;
+    private BigDecimal after;
+    private LocalDateTime created;
 }
