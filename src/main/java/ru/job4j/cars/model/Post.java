@@ -3,6 +3,7 @@ package ru.job4j.cars.model;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -12,11 +13,13 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 @Entity
 @Table(name = "auto_post")
 public class Post {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
     private int id;
 
     private String description;
@@ -29,6 +32,10 @@ public class Post {
     @OneToMany
     @JoinColumn(name = "auto_post_id")
     private List<PriceHistory> priceHistoryList = new ArrayList<>();
+
+    @OneToMany
+    @JoinColumn(name = "auto_post_id")
+    private List<File> files = new ArrayList<>();
 
     @ManyToOne
     @JoinColumn(name = "car_id")
