@@ -42,7 +42,7 @@ public class OwnerRepository {
 
     public List<Owner> findByUserId(int userId) {
         return crudRepository.query(
-                "from Owner where user_id = :userId order by id asc",
+                "from Owner where user.id = :userId order by id asc",
                 Owner.class,
                 Map.of("userId", userId)
         );
