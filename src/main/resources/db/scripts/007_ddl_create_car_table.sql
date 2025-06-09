@@ -1,0 +1,6 @@
+CREATE TABLE car (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    engine_id INT NOT NULL UNIQUE,
+    FOREIGN KEY (engine_id) REFERENCES engine(id)
+);

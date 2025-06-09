@@ -1,0 +1,5 @@
+CREATE TABLE history (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    startAt DATETIME NOT NULL,
+    endAt DATETIME
+);
