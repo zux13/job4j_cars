@@ -17,23 +17,56 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 class PostRepositoryTest {
 
-    @Autowired
-    private PostRepository postRepository;
+    @Autowired private PostRepository postRepository;
+    @Autowired private UserRepository userRepository;
+    @Autowired private EngineRepository engineRepository;
+    @Autowired private CarRepository carRepository;
+    @Autowired private FileRepository fileRepository;
+    @Autowired private BrandRepository brandRepository;
+    @Autowired private CategoryRepository categoryRepository;
+    @Autowired private CarTypeRepository carTypeRepository;
+    @Autowired private OwnerRepository ownerRepository;
+    @Autowired private SessionFactory sessionFactory;
 
-    @Autowired
-    private UserRepository userRepository;
+    private Car prepareCar(String name, String engineName) {
+        User user = new User();
+        user.setLogin("user_" + System.nanoTime());
+        user.setPassword("pass");
+        userRepository.create(user);
 
-    @Autowired
-    private EngineRepository engineRepository;
+        Owner owner = new Owner();
+        owner.setName("owner");
+        owner.setUser(user);
+        ownerRepository.create(owner);
 
-    @Autowired
-    private CarRepository carRepository;
+        Engine engine = new Engine();
+        engine.setName(engineName);
+        engineRepository.create(engine);
 
-    @Autowired
-    private FileRepository fileRepository;
+        Brand brand = new Brand();
+        brand.setName("Toyota");
+        brandRepository.create(brand);
 
-    @Autowired
-    private SessionFactory sessionFactory;
+        Category category = new Category();
+        category.setName("Легковая");
+        categoryRepository.create(category);
+
+        CarType carType = new CarType();
+        carType.setName("Седан");
+        carType.setCategory(category);
+        carTypeRepository.create(carType);
+
+        Car car = new Car();
+        car.setName(name);
+        car.setEngine(engine);
+        car.setBrand(brand);
+        car.setCategory(category);
+        car.setCarType(carType);
+        car.setOwner(owner);
+
+        carRepository.create(car);
+        return car;
+    }
 
     private Post createPost() {
         User user = new User();
@@ -41,14 +74,7 @@ class PostRepositoryTest {
         user.setPassword("pwd");
         userRepository.create(user);
 
-        Engine engine = new Engine();
-        engine.setName("V6");
-        engineRepository.create(engine);
-
-        Car car = new Car();
-        car.setName("Toyota");
-        car.setEngine(engine);
-        carRepository.create(car);
+        Car car = prepareCar("Toyota", "V6");
 
         Post post = new Post();
         post.setDescription("Nice car");
@@ -73,6 +99,10 @@ class PostRepositoryTest {
             session.createMutationQuery("DELETE FROM Post").executeUpdate();
             session.createMutationQuery("DELETE FROM Car").executeUpdate();
             session.createMutationQuery("DELETE FROM Engine").executeUpdate();
+            session.createMutationQuery("DELETE FROM Brand").executeUpdate();
+            session.createMutationQuery("DELETE FROM CarType").executeUpdate();
+            session.createMutationQuery("DELETE FROM Category").executeUpdate();
+            session.createMutationQuery("DELETE FROM Owner").executeUpdate();
             session.createMutationQuery("DELETE FROM User").executeUpdate();
             session.getTransaction().commit();
         }
@@ -144,15 +174,7 @@ class PostRepositoryTest {
 
     @Test
     void whenFindAllByCarNameThenReturnPosts() {
-
-        Engine engine = new Engine();
-        engine.setName("V6");
-        engineRepository.create(engine);
-
-        Car car = new Car();
-        car.setName("Honda");
-        car.setEngine(engine);
-        carRepository.create(car);
+        Car car = prepareCar("Honda", "V6");
 
         Post post1 = createPost();
         post1.setCar(car);

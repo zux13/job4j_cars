@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JoinFormula;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -27,14 +26,9 @@ public class Car {
     @JoinColumn(name = "engine_id", foreignKey = @ForeignKey(name = "ENGINE_ID_FK"))
     private Engine engine;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinFormula(
-            value = "(SELECT ho.owner_id FROM history_owners ho "
-                    + "JOIN history h ON ho.history_id = h.id "
-                    + "WHERE ho.car_id = id AND h.startAt <= NOW() AND (h.endAt IS NULL OR h.endAt > NOW()) LIMIT 1)",
-            referencedColumnName = "id"
-    )
-    private Owner currentOwner;
+    @ManyToOne
+    @JoinColumn(name = "owner_id", nullable = false)
+    private Owner owner;
 
     @ManyToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinTable(name = "history_owners",
@@ -42,4 +36,16 @@ public class Car {
             inverseJoinColumns = {@JoinColumn(name = "owner_id", nullable = false)}
     )
     private Set<Owner> owners = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "auto_category_id", nullable = false)
+    private Category category;
+
+    @ManyToOne
+    @JoinColumn(name = "auto_brand_id", nullable = false)
+    private Brand brand;
+
+    @ManyToOne
+    @JoinColumn(name = "auto_type_id", nullable = false)
+    private CarType carType;
 }

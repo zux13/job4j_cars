@@ -1,0 +1,2 @@
+ALTER TABLE auto_post
+ADD COLUMN sold TINYINT(1) DEFAULT 0;

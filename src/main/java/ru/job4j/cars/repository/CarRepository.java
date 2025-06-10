@@ -33,7 +33,6 @@ public class CarRepository {
         return crudRepository.query(
                 """
                 FROM Car c
-                LEFT JOIN FETCH c.currentOwner
                 LEFT JOIN FETCH c.owners
                 ORDER BY c.id
                 """,
@@ -45,7 +44,6 @@ public class CarRepository {
         return crudRepository.optional(
             """
                    FROM Car c
-                   LEFT JOIN FETCH c.currentOwner
                    LEFT JOIN FETCH c.owners
                    WHERE c.id=:id
                    """,
@@ -58,7 +56,6 @@ public class CarRepository {
         return crudRepository.query(
             """
                    FROM Car c
-                   LEFT JOIN FETCH c.currentOwner
                    LEFT JOIN FETCH c.owners
                    WHERE c.name=:name
                    """,
