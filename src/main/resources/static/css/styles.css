@@ -70,3 +70,10 @@
 .sold img {
     filter: grayscale(100%);
 }
+
+.hover-highlight:hover {
+    box-shadow: 0 0.5rem 1rem rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
