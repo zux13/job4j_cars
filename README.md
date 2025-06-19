@@ -57,7 +57,7 @@
 
 - `controller` — обработка HTTP-запросов и форм
 - `service` — бизнес-логика
-- `store` — работа с БД через Hibernate
+- `repository` — работа с БД через Hibernate
 
 Также используются DTO.
 
