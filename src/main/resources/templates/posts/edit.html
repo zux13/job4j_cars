@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/header :: header"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Titlebar -->
+<div th:replace="fragments/titlebar :: titlebar"></div>
+
+<!-- Main Container -->
+<div class="container my-4 flex-grow-1">
+    <h2 class="mb-4">Редактирование объявления</h2>
+
+    <form th:action="@{/posts/edit/{id}(id=${post.id})}" method="post" enctype="multipart/form-data" class="row g-4">
+
+        <div class="col-md-8">
+            <div class="card p-4 shadow-sm">
+
+                <div class="mb-3">
+                    <label for="carName" class="form-label fw-semibold">Название автомобиля</label>
+                    <input type="text" id="carName" name="carName" class="form-control" th:value="${post.car.name}" required>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Категория -->
+                    <div class="col-md-6 mb-3">
+                        <label for="category" class="form-label fw-semibold">Категория</label>
+                        <select id="category" name="categoryId" class="form-select js-choice-category" required>
+                            <option value="">Выберите категорию</option>
+                            <option th:each="category : ${categories}"
+                                    th:value="${category.id}"
+                                    th:text="${category.name}"
+                                    th:selected="${category.id == post.car.category.id}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Тип корпуса -->
+                    <div class="col-md-6 mb-3">
+                        <label for="type" class="form-label fw-semibold">Тип корпуса</label>
+                        <select id="type" name="typeId" class="form-select js-choice-type"
+                                th:data-initial-value="${post.car.carType.id}" required>
+                            <option value="" disabled selected>Выберите тип</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Марка -->
+                    <div class="col-md-6 mb-3">
+                        <label for="brand" class="form-label fw-semibold">Марка</label>
+                        <select id="brand" name="brandId" class="form-select" required>
+                            <option value="">Выберите марку</option>
+                            <option th:each="brand : ${brands}"
+                                    th:value="${brand.id}"
+                                    th:text="${brand.name}"
+                                    th:selected="${brand.id == post.car.brand.id}">
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Двигатель -->
+                    <div class="col-md-6 mb-3">
+                        <label for="engine" class="form-label fw-semibold">Двигатель</label>
+                        <input type="text" id="engine" name="engine" class="form-control" placeholder="Объём, тип топлива..."
+                               th:value="${post.car.engine.name}" required>
+                    </div>
+                </div>
+
+                <!-- Владельцы -->
+                <label class="form-label fw-semibold">Владельцы</label>
+                <div class="mb-3 p-3 border rounded">
+                    <div id="ownersList" class="p-2" style="max-height: 300px; overflow-y: auto;">
+                        <div th:each="history, iterStat : ${ownershipHistories}" class="owner-entry row g-2 mb-3">
+                            <!-- Скрытые поля с id -->
+                            <input type="hidden"
+                                   th:name="'ownershipHistories[' + ${iterStat.index} + '].id.ownerId'"
+                                   th:value="${history.id.ownerId}" />
+                            <input type="hidden"
+                                   th:name="'ownershipHistories[' + ${iterStat.index} + '].id.carId'"
+                                   th:value="${history.id.carId}" />
+                            <input type="hidden"
+                                   th:name="'ownershipHistories[' + ${iterStat.index} + '].id.historyId'"
+                                   th:value="${history.id.historyId}" />
+
+
+                            <!-- Имя владельца -->
+                            <div class="col-md-5">
+                                <input type="text"
+                                       th:name="'ownershipHistories[' + ${iterStat.index} + '].owner.name'"
+                                       th:value="${history.owner.name}"
+                                       class="form-control"
+                                       placeholder="ФИО владельца"
+                                       required>
+                            </div>
+
+                            <!-- Дата начала -->
+                            <div class="col-md-3">
+                                <input type="date"
+                                       th:name="'ownershipHistories[' + ${iterStat.index} + '].period.startAt'"
+                                       th:value="${#temporals.format(history.period.startAt, 'yyyy-MM-dd')}"
+                                       class="form-control date-start"
+                                       required>
+                            </div>
+
+                            <!-- Дата окончания -->
+                            <div class="col-md-3">
+                                <input type="date"
+                                       th:name="'ownershipHistories[' + ${iterStat.index} + '].period.endAt'"
+                                       th:value="${#temporals.format(history.period.endAt, 'yyyy-MM-dd')}"
+                                       class="form-control date-end">
+                            </div>
+
+                            <!-- Кнопка удаления -->
+                            <div class="col-md-1 d-flex align-items-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-owner">×</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-outline-primary" id="addOwnerBtn">+ Добавить владельца</button>
+                </div>
+
+                <!-- Контейнер для удалённых владельцев -->
+                <div id="removedOwnersIds" name="removedOwnersIds"></div>
+
+                <!-- Описание -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Описание</label>
+                    <textarea id="description" name="description" class="form-control" rows="4"
+                              th:text="${post.description}"></textarea>
+                </div>
+
+                <div class="row g-3 align-items-end">
+                    <!-- Цена -->
+                    <div class="col-md-6 mb-3">
+                        <label for="price" class="form-label fw-semibold">Цена</label>
+                        <input type="number" id="price" name="price" class="form-control" step="1000" min="0"
+                               th:value="${post.priceHistoryList[0].afterPrice}" required>
+                        <input type="hidden" name="beforePrice" th:value="${post.priceHistoryList[0].afterPrice}">
+                    </div>
+
+                    <!-- Статус + Кнопки в одной колонке -->
+                    <div class="col-md-6 mb-3 d-flex justify-content-end align-items-end gap-2">
+                        <!-- Статус -->
+                        <div class="d-flex flex-column">
+                            <label for="toggleSoldBtn" class="form-label fw-semibold mb-1">Статус</label>
+                            <button type="button" id="toggleSoldBtn"
+                                    th:classappend="${post.sold} ? 'btn-outline-danger' : 'btn-outline-success'"
+                                    class="btn">
+                                <span th:text="${post.sold} ? 'Продано' : 'Активно'">Статус</span>
+                            </button>
+                            <input type="hidden" name="sold" id="soldHidden" th:value="${post.sold}">
+                        </div>
+
+                        <!-- Кнопки -->
+                        <a href="/" class="btn btn-secondary">Отмена</a>
+                        <button type="submit" class="btn btn-success">Сохранить</button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Фотографии -->
+        <div class="col-md-4">
+            <div class="card p-4 shadow-sm">
+                <label for="photoInput" class="btn btn-outline-primary">+ Добавить фото</label>
+                <input type="file" id="photoInput" name="newPhotos" multiple accept="image/*" style="display: none;">
+
+                <!-- Старые фото -->
+                <div id="preview" class="preview-container">
+                    <div th:each="file : ${imageList}"
+                         class="preview existing-preview"
+                         th:attr="data-file-id=${file.id}">
+                        <img th:src="'data:image/jpeg;base64,' + ${file.base64}" alt="preview" style="width:100%; height:auto;">
+                        <button type="button" class="remove-btn remove-existing-photo" aria-label="Удалить фото">×</button>
+                    </div>
+                </div>
+
+                <input type="hidden" id="removedFileIds" name="removedFileIds" value="">
+
+            </div>
+        </div>
+
+    </form>
+</div>
+
+<!-- Footer -->
+<footer th:include="fragments/footer :: footer"></footer>
+
+<!-- JS -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.typesJson = /*[(${typesJson})]*/ '[]';
+    /*]]>*/
+</script>
+<script src="/js/edit-post.js"></script>
+<script src="/js/category-type-select.js"></script>
+<script src="/js/image-select.js"></script>
+<script src="/js/owners.js"></script>
+<script src="/js/image-modal.js"></script>
+
+<div th:replace="fragments/modal :: photoModal('editPhotoModal', 'editPrevImage', 'editNextImage', 'editModalImage')"></div>
+
+</body>
+</html>

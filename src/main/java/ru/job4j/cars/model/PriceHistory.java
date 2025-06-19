@@ -18,7 +18,15 @@ public class PriceHistory {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    private BigDecimal before;
-    private BigDecimal after;
+    @Column(name = "before_price")
+    private BigDecimal beforePrice;
+
+    @Column(name = "after_price")
+    private BigDecimal afterPrice;
+
     private LocalDateTime created;
+
+    @ManyToOne
+    @JoinColumn(name = "auto_post_id")
+    private Post post;
 }

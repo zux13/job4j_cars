@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head th:include="fragments/header :: header"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<div th:replace="fragments/titlebar :: titlebar"></div>
+
+<div class="container mb-4 flex-grow-1">
+    <div class="row justify-content-center">
+        <div class="col-6">
+
+            <h2 class="my-4 text-center">Регистрация</h2>
+
+            <form th:action="@{/users/register}" method="post" enctype="multipart/form-data" class="border p-4 rounded shadow-sm bg-white">
+
+                <div th:if="${error}" class="alert alert-danger text-center" th:text="${error}"></div>
+
+                <div class="mb-3">
+                    <label for="login" class="form-label fw-semibold">Логин</label>
+                    <input type="text" class="form-control" id="login" name="login" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label fw-semibold">Пароль</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-6 pe-1">
+                        <a class="btn btn-danger w-100" th:href="@{/}">Отмена</a>
+                    </div>
+                    <div class="col-6 ps-1">
+                        <button class="btn btn-primary w-100" type="submit">Сохранить</button>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<footer th:include="fragments/footer :: footer"></footer>
+</body>
+</html>

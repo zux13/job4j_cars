@@ -25,7 +25,7 @@ class UserRepositoryTest {
         User user = new User();
         user.setLogin("test_" + System.nanoTime());
         user.setPassword("pwd");
-        return userRepository.create(user);
+        return userRepository.create(user).orElseThrow();
     }
 
     @AfterEach

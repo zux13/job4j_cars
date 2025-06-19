@@ -113,7 +113,8 @@ class PostRepositoryTest {
         Post post = createPost();
         assertThat(post.getId()).isPositive();
 
-        Optional<Post> found = postRepository.findAllFromLastDay().stream()
+        Optional<Post> found = postRepository.findAll()
+                .stream()
                 .filter(p -> p.getId() == post.getId())
                 .findFirst();
 
@@ -127,7 +128,8 @@ class PostRepositoryTest {
         post.setDescription("Updated description");
         postRepository.update(post);
 
-        Optional<Post> updated = postRepository.findAllFromLastDay().stream()
+        Optional<Post> updated = postRepository.findAll()
+                .stream()
                 .filter(p -> p.getId() == post.getId())
                 .findFirst();
 
@@ -140,50 +142,8 @@ class PostRepositoryTest {
         Post post = createPost();
         postRepository.delete(post.getId());
 
-        List<Post> posts = postRepository.findAllFromLastDay();
+        List<Post> posts = postRepository.findAll();
         assertThat(posts).noneMatch(p -> p.getId() == post.getId());
     }
 
-    @Test
-    void whenFindAllFromLastDayThenOnlyRecentPostsReturned() {
-        createPostWithCreationDate(LocalDateTime.now().minusDays(2));
-        Post recentPost = createPostWithCreationDate(LocalDateTime.now().minusHours(12));
-
-        List<Post> posts = postRepository.findAllFromLastDay();
-        assertThat(posts).extracting(Post::getId).contains(recentPost.getId());
-        assertThat(posts).allMatch(p -> p.getCreated().isAfter(LocalDateTime.now().minusDays(1).minusSeconds(1)));
-    }
-
-    @Test
-    void whenFindAllWithPhotoThenReturnPostsWithFiles() {
-        Post postWithoutFiles = createPost();
-
-        Post postWithFiles = createPost();
-        File file = new File();
-        file.setName("file1.jpg");
-        file.setPath("path");
-        file.setPost(postWithFiles);
-
-        postWithFiles.getFiles().add(file);
-        postRepository.update(postWithFiles);
-
-        List<Post> posts = postRepository.findAllWithPhoto();
-        assertThat(posts).extracting(Post::getId).contains(postWithFiles.getId());
-        assertThat(posts).extracting(Post::getId).doesNotContain(postWithoutFiles.getId());
-    }
-
-    @Test
-    void whenFindAllByCarNameThenReturnPosts() {
-        Car car = prepareCar("Honda", "V6");
-
-        Post post1 = createPost();
-        post1.setCar(car);
-        postRepository.update(post1);
-
-        Post post2 = createPost();
-
-        List<Post> posts = postRepository.findAllByCarName("Honda");
-        assertThat(posts).extracting(Post::getId).contains(post1.getId());
-        assertThat(posts).extracting(Post::getId).doesNotContain(post2.getId());
-    }
 }

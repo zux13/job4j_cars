@@ -1,6 +1,8 @@
 package ru.job4j.cars.repository;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.exception.ConstraintViolationException;
 import org.springframework.stereotype.Repository;
 import ru.job4j.cars.model.User;
 
@@ -10,6 +12,7 @@ import java.util.Optional;
 
 @AllArgsConstructor
 @Repository
+@Slf4j
 public class UserRepository {
     private final CrudRepository crudRepository;
 
@@ -18,9 +21,14 @@ public class UserRepository {
      * @param user пользователь.
      * @return пользователь с id.
      */
-    public User create(User user) {
-        crudRepository.run(session -> session.persist(user));
-        return user;
+    public Optional<User> create(User user) {
+        try {
+            crudRepository.run(session -> session.persist(user));
+            return Optional.of(user);
+        } catch (ConstraintViolationException e) {
+            log.warn("Duplicate login attempt: {}", user.getLogin());
+            return Optional.empty();
+        }
     }
 
     /**
@@ -56,7 +64,8 @@ public class UserRepository {
      */
     public Optional<User> findById(int userId) {
         return crudRepository.optional(
-                "from User where id = :fId", User.class,
+                "from User where id = :fId",
+                User.class,
                 Map.of("fId", userId)
         );
     }
@@ -68,7 +77,8 @@ public class UserRepository {
      */
     public List<User> findByLikeLogin(String key) {
         return crudRepository.query(
-                "from User where login like :fKey", User.class,
+                "from User where login like :fKey",
+                User.class,
                 Map.of("fKey", "%" + key + "%")
         );
     }
@@ -80,8 +90,25 @@ public class UserRepository {
      */
     public Optional<User> findByLogin(String login) {
         return crudRepository.optional(
-                "from User where login = :fLogin", User.class,
-                Map.of("fLogin", login)
+                """
+                from User u
+                LEFT JOIN FETCH u.subscribedPosts
+                where u.login = :login
+                """,
+                User.class,
+                Map.of("login", login)
+        );
+    }
+
+    public Optional<User> findByLoginAndPassword(String login, String password) {
+        return crudRepository.optional(
+                """
+                from User u
+                LEFT JOIN FETCH u.subscribedPosts
+                where u.login = :login and u.password = : password
+                """,
+                User.class,
+                Map.of("login", login, "password", password)
         );
     }
 }

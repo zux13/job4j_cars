@@ -29,4 +29,7 @@
                 splitStatements="true"
                 endDelimiter=";" />
     </changeSet>
+    <include file="../scripts/019_dml_insert_auto_category_data.sql" relativeToChangelogFile="true"/>
+    <include file="../scripts/020_dml_insert_auto_type_data.sql" relativeToChangelogFile="true"/>
+    <include file="../scripts/021_dml_insert_auto_brand_data.sql" relativeToChangelogFile="true"/>
 </databaseChangeLog>

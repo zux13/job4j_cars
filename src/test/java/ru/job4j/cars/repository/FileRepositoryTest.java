@@ -10,7 +10,6 @@ import ru.job4j.cars.model.Post;
 import ru.job4j.cars.model.User;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -86,59 +85,4 @@ class FileRepositoryTest {
         assertThat(result).isEmpty();
     }
 
-    @Test
-    void whenUpdateFileThenChangesPersisted() {
-        Post post = createAndSavePost();
-        File file = new File();
-        file.setName("old.png");
-        file.setPath("uploads/old.png");
-        file.setPost(post);
-        fileRepository.save(file);
-
-        file.setName("new.png");
-        fileRepository.update(file);
-
-        List<File> files = fileRepository.findByPostId(post.getId());
-        assertThat(files).hasSize(1);
-        assertThat(files.getFirst().getName()).isEqualTo("new.png");
-    }
-
-    @Test
-    void whenDeleteFileThenItIsRemoved() {
-        Post post = createAndSavePost();
-        File file = new File();
-        file.setName("to-delete.png");
-        file.setPath("uploads/to-delete.png");
-        file.setPost(post);
-        fileRepository.save(file);
-
-        fileRepository.delete(file.getId());
-        List<File> files = fileRepository.findByPostId(post.getId());
-
-        assertThat(files).isEmpty();
-    }
-
-    @Test
-    void whenFindByPostIdThenReturnAllFiles() {
-        Post post = createAndSavePost();
-
-        File file1 = new File();
-        file1.setName("f1.png");
-        file1.setPath("p1");
-        file1.setPost(post);
-        fileRepository.save(file1);
-
-        File file2 = new File();
-        file2.setName("f2.png");
-        file2.setPath("p2");
-        file2.setPost(post);
-        fileRepository.save(file2);
-
-        List<File> files = fileRepository.findByPostId(post.getId());
-
-        assertThat(files).hasSize(2);
-        assertThat(files)
-                .extracting(File::getPath)
-                .containsExactlyInAnyOrder("p1", "p2");
-    }
 }

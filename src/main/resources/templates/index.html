@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head th:include="fragments/header :: header"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Titlebar -->
+<div th:replace="fragments/titlebar :: titlebar"></div>
+
+<!-- Main Container -->
+<div class="container my-4 flex-grow-1">
+
+    <h2 th:text="${pageTitle}" class="mb-4">Все объявления</h2>
+
+    <div class="row">
+
+        <!-- Main Content -->
+        <div class="col-md-9 col-12 order-2 order-md-1 mb-4">
+            <div th:replace="fragments/postlist :: postlist(${posts})"></div>
+            <div th:replace="fragments/pagination :: pager(${currentPage}, ${totalPages}, ${size}, ${filter}, ${user})"></div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="col-md-3 col-12 order-1 order-md-2 mb-4">
+            <div class="bg-white border rounded shadow-sm p-3">
+                <a href="/posts/create" class="btn btn-success w-100 mb-4">Разместить объявление</a>
+                <form th:action="@{/}" method="get" class="d-flex flex-column gap-3">
+                    <!-- Период -->
+                    <div>
+                        <label class="form-label fw-semibold">За период</label>
+                        <select name="periodId" class="form-select">
+                            <option value="0" th:selected="${filter.periodId == 0}">Все объявления</option>
+                            <option value="1" th:selected="${filter.periodId == 1}">За 24 часа</option>
+                            <option value="2" th:selected="${filter.periodId == 2}">За 3 дня</option>
+                            <option value="3" th:selected="${filter.periodId == 3}">За неделю</option>
+                            <option value="4" th:selected="${filter.periodId == 4}">За месяц</option>
+                        </select>
+                    </div>
+
+                    <!-- Только активные -->
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="onlyActive" id="onlyActive"
+                               th:checked="${filter.onlyActive}">
+                        <label class="form-check-label" for="onlyActive">Только активные</label>
+                    </div>
+
+                    <!-- Только с фото -->
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="onlyWithPhoto" id="withPhoto"
+                               th:checked="${filter.onlyWithPhoto}">
+                        <label class="form-check-label" for="withPhoto">Только с фото</label>
+                    </div>
+
+                    <!-- Только мои -->
+                    <div class="form-check" th:if="${user.login != 'Гость'}">
+                        <input class="form-check-input" type="checkbox" name="onlyMyPosts" id="myPosts"
+                               th:checked="${filter.onlyMyPosts}">
+                        <input type="hidden" name="userId" th:value="${user.id}">
+                        <label class="form-check-label" for="myPosts">Только мои объявления</label>
+                    </div>
+
+                    <!-- По марке -->
+                    <div>
+                        <button class="btn btn-outline-secondary w-100 text-start" type="button"
+                                data-bs-toggle="collapse" data-bs-target="#brandCollapse">
+                            По марке
+                        </button>
+                        <div th:class="'collapse mt-2' + (${filter.brandIds != null and !filter.brandIds.isEmpty()} ? ' show' : '')"
+                             id="brandCollapse">
+                            <div class="card card-body">
+                                <input type="text" class="form-control mb-2" id="brandSearchInput" placeholder="Поиск по марке">
+
+                                <div id="brandList" style="max-height: 400px; padding-left:5px; overflow-y: auto;">
+                                    <div class="form-check" th:each="brand : ${brands}">
+                                        <input class="form-check-input" type="checkbox"
+                                               th:id="'brand-' + ${brand.id}"
+                                               th:name="brandIds"
+                                               th:value="${brand.id}"
+                                               th:checked="${filter.brandIds != null and #lists.contains(filter.brandIds, brand.id)}">
+                                        <label class="form-check-label" th:for="'brand-' + ${brand.id}"
+                                               th:text="${brand.name}">Марка</label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Применить -->
+                    <button type="submit" class="btn btn-outline-primary mt-2">Применить фильтр</button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer th:include="fragments/footer :: footer"></footer>
+
+<script src="/js/car-brand-search.js"></script>
+
+</body>
+</html>

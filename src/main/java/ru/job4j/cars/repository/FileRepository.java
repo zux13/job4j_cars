@@ -38,11 +38,25 @@ public class FileRepository {
         );
     }
 
-    public List<File> findByPostId(int postId) {
-        return crudRepository.query(
-                "from File where post.id = :postId order by id asc",
-                File.class,
-                Map.of("postId", postId)
+    public void deleteByIds(List<Integer> ids) {
+        crudRepository.run(
+                "delete from File where id in(:ids)",
+                Map.of("ids", ids)
         );
     }
+
+    public Optional<File> findById(int id) {
+        return crudRepository.optional(
+                "FROM File WHERE id=:id",
+                File.class,
+                Map.of("id", id)
+        );
+    }
+
+    public List<File> findByIds(List<Integer> ids) {
+        return crudRepository.query(
+                "FROM File WHERE id IN (:ids)",
+                File.class,
+                Map.of("ids", ids)
+        );    }
 }

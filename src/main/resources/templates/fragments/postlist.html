@@ -1,0 +1,50 @@
+<div th:fragment="postlist(posts)" xmlns:th="http://www.thymeleaf.org">
+
+    <div th:if="${posts.isEmpty()}" class="alert alert-primary w-100 text-center">
+        <span th:text="${filterEmpty}
+                        ? 'Тут пока нет объявлений.'
+                        : 'Не нашли объявления по вашему запросу.'">Нет данных</span>
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        <div class="col" th:each="post : ${posts}">
+            <div class="card h-100 shadow-sm border rounded position-relative">
+
+                <!-- Кнопка редактирования -->
+                <a th:if="${user.login != 'Гость' and user.id == post.userId}"
+                   th:href="@{/posts/edit/{id}(id=${post.id})}"
+                   class="position-absolute top-0 end-0 m-2 btn btn-primary btn-sm d-flex align-items-center justify-content-center"
+                   style="width: 32px; height: 32px; font-size:18px; z-index:10;">
+                    <i class="bi bi-pencil-square text-white"></i>
+                </a>
+
+                <!-- Ссылка на сам пост -->
+                <a th:href="@{/posts/} + ${post.id}" class="text-decoration-none text-dark">
+                    <div class="position-relative" th:classappend="${post.sold} ? ' sold'">
+                        <img th:src="${#strings.isEmpty(post.imageBase64)}
+                            ? @{/images/default.jpg}
+                            : 'data:image/jpeg;base64,' + ${post.imageBase64}"
+                             class="card-img-top"
+                             alt="Фото автомобиля"
+                             style="height: 250px; object-fit: cover;">
+                        <!-- SOLD overlay -->
+                        <img th:if="${post.sold}" th:src="@{/images/sold.png}"
+                             class="position-absolute top-50 start-50 translate-middle"
+                             style="max-width: 80%;">
+                    </div>
+
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="card-title fw-bold mb-0" th:text="${post.carName}">Модель авто</h5>
+                                <span class="text-muted" th:text="${post.engineName}">Двигатель</span>
+                            </div>
+                            <span th:classappend="${post.sold} ? ' bg-secondary' : 'bg-success' " class="badge fs-6"
+                                  th:text="${#numbers.formatDecimal(post.price, 1, 'COMMA', 0, 'POINT')} + ' ₽'">Цена</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

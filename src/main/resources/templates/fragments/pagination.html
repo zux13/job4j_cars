@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="pager(currentPage, totalPages, size, filter, user)">
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-4 mb-0">
+
+        <!-- Селектор размера страницы -->
+        <form method="get" class="d-flex align-items-center gap-2">
+            <label for="sizeSelect" class="form-label mb-0 small">На странице:</label>
+            <select class="form-select form-select-sm" id="sizeSelect" name="size" onchange="this.form.submit()"
+                    style="width: auto;">
+                <option th:each="s : ${T(java.util.List).of(6, 12, 24)}"
+                        th:value="${s}"
+                        th:selected="${s == size}"
+                        th:text="${s}">6</option>
+            </select>
+            <input type="hidden" name="page" value="1">
+            <input type="hidden" name="periodId" th:value="${filter.periodId}">
+            <input type="hidden" name="onlyActive" th:value="${filter.onlyActive}">
+            <input type="hidden" name="onlyWithPhoto" th:value="${filter.onlyWithPhoto}">
+            <input type="hidden" name="onlyMyPosts" th:value="${filter.onlyMyPosts}">
+            <input type="hidden" name="userId" th:value="${user.id}">
+            <input type="hidden" name="brandIds" th:each="id : ${filter.brandIds}" th:value="${id}">
+        </form>
+
+        <!-- Пагинация -->
+        <nav th:if="${totalPages > 1}" aria-label="Page navigation">
+            <div class="d-flex justify-content-end flex-wrap gap-2">
+                <!-- Назад -->
+                <form method="get" th:if="${currentPage > 1}">
+                    <input type="hidden" name="page" th:value="${currentPage - 1}">
+                    <input type="hidden" name="size" th:value="${size}">
+                    <input type="hidden" name="periodId" th:value="${filter.periodId}">
+                    <input type="hidden" name="onlyActive" th:value="${filter.onlyActive}">
+                    <input type="hidden" name="onlyWithPhoto" th:value="${filter.onlyWithPhoto}">
+                    <input type="hidden" name="onlyMyPosts" th:value="${filter.onlyMyPosts}">
+                    <input type="hidden" name="userId" th:value="${user.id}">
+                    <input type="hidden" name="brandIds" th:each="id : ${filter.brandIds}" th:value="${id}">
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">&laquo;</button>
+                </form>
+
+                <!-- Номера -->
+                <form method="get" th:each="i : ${#numbers.sequence(1, totalPages)}" class="d-inline">
+                    <input type="hidden" name="page" th:value="${i}">
+                    <input type="hidden" name="size" th:value="${size}">
+                    <input type="hidden" name="periodId" th:value="${filter.periodId}">
+                    <input type="hidden" name="onlyActive" th:value="${filter.onlyActive}">
+                    <input type="hidden" name="onlyWithPhoto" th:value="${filter.onlyWithPhoto}">
+                    <input type="hidden" name="onlyMyPosts" th:value="${filter.onlyMyPosts}">
+                    <input type="hidden" name="userId" th:value="${user.id}">
+                    <input type="hidden" name="brandIds" th:each="id : ${filter.brandIds}" th:value="${id}">
+                    <button type="submit"
+                            class="btn btn-sm"
+                            th:classappend="${i == currentPage} ? ' btn-primary' : ' btn-outline-secondary'">
+                        <span th:text="${i}">1</span>
+                    </button>
+                </form>
+
+                <!-- Вперёд -->
+                <form method="get" th:if="${currentPage < totalPages}">
+                    <input type="hidden" name="page" th:value="${currentPage + 1}">
+                    <input type="hidden" name="size" th:value="${size}">
+                    <input type="hidden" name="periodId" th:value="${filter.periodId}">
+                    <input type="hidden" name="onlyActive" th:value="${filter.onlyActive}">
+                    <input type="hidden" name="onlyWithPhoto" th:value="${filter.onlyWithPhoto}">
+                    <input type="hidden" name="onlyMyPosts" th:value="${filter.onlyMyPosts}">
+                    <input type="hidden" name="userId" th:value="${user.id}">
+                    <input type="hidden" name="brandIds" th:each="id : ${filter.brandIds}" th:value="${id}">
+                    <button class="btn btn-sm btn-outline-secondary" type="submit">&raquo;</button>
+                </form>
+            </div>
+        </nav>
+
+    </div>
+</div>
+
+</body>
+</html>

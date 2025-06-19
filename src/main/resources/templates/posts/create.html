@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/header :: header"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Titlebar -->
+<div th:replace="fragments/titlebar :: titlebar"></div>
+
+<!-- Main Container -->
+<div class="container my-4 flex-grow-1">
+    <h2 class="mb-4">Создание объявления</h2>
+
+    <form th:action="@{/posts/create}" method="post" enctype="multipart/form-data" class="row g-4">
+
+        <div class="col-md-8">
+            <div class="card p-4 shadow-sm">
+
+                <!-- Заголовок -->
+                <div class="mb-3">
+                    <label for="carName" class="form-label fw-semibold">Название автомобиля</label>
+                    <input type="text" id="carName" name="carName" class="form-control" required>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Селект категорий -->
+                    <div class="col-md-6 mb-3">
+                        <label for="category" class="form-label fw-semibold">Категория</label>
+                        <select id="category" name="categoryId" class="form-select js-choice-category" required>
+                            <option value="">Выберите категорию</option>
+                            <option th:each="category : ${categories}"
+                                    th:value="${category.id}"
+                                    th:text="${category.name}">Category Name</option>
+                        </select>
+                    </div>
+
+                    <!-- Селект типов корпуса -->
+                    <div class="col-md-6 mb-3">
+                        <label for="type" class="form-label fw-semibold">Тип корпуса</label>
+                        <select id="type" name="typeId" class="form-select js-choice-type" disabled required>
+                            <option value="" selected disabled>Выберите категорию</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="row g-3">
+                    <!-- Марка -->
+                    <div class="col-md-6 mb-3">
+                        <label for="brand" class="form-label fw-semibold">Марка</label>
+                        <select id="brand" name="brandId" class="form-select" required>
+                            <option value="">Выберите марку</option>
+                            <option th:each="brand : ${brands}"
+                                    th:value="${brand.id}"
+                                    th:text="${brand.name}">Brand Name</option>
+                        </select>
+                    </div>
+
+                    <!-- Двигатель -->
+                    <div class="col-md-6 mb-3">
+                        <label for="engine" class="form-label fw-semibold">Двигатель</label>
+                        <input type="text" id="engine" name="engine" class="form-control" placeholder="Объём, тип топлива..." required>
+                    </div>
+                </div>
+
+                <!-- Владельцы -->
+                <label for="ownersList" class="form-label fw-semibold">Владельцы</label>
+                <div class="mb-3 p-3 border rounded">
+                    <div id="ownersList" class="p-2" style="max-height: 200px; overflow-y: auto;">
+                        <div class="owner-entry row g-2 mb-3">
+                            <!-- Пустые ID -->
+                            <input type="hidden" name="ownershipHistories[0].id.ownerId" value="">
+                            <input type="hidden" name="ownershipHistories[0].id.carId" value="">
+                            <input type="hidden" name="ownershipHistories[0].id.historyId" value="">
+
+                            <div class="col-md-5">
+                                <input type="text" name="ownershipHistories[0].owner.name" class="form-control" placeholder="ФИО владельца" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="date" name="ownershipHistories[0].period.startAt" class="form-control date-start" required>
+                            </div>
+                            <div class="col-md-3">
+                                <input type="date" name="ownershipHistories[0].period.endAt" class="form-control date-end">
+                            </div>
+                            <div class="col-md-1 d-flex align-items-center">
+                                <button type="button" class="btn btn-danger btn-sm remove-owner">×</button>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="addOwnerBtn" class="btn btn-outline-primary ml-2">+ Добавить владельца</button>
+                </div>
+
+                <!-- Описание -->
+                <div class="mb-3">
+                    <label class="form-label fw-semibold">Описание</label>
+                    <textarea type="text" id="description" name="description" class="form-control" rows="4" ></textarea>
+                </div>
+
+                <div class="row g-3 align-items-end">
+                    <!-- Цена -->
+                    <div class="col-md-6 mb-3">
+                        <label for="price" class="form-label fw-semibold">Цена</label>
+                        <input type="number" id="price" name="price" class="form-control" step="1000" min="0" required>
+                    </div>
+
+                    <!-- Кнопки -->
+                    <div class="col-md-6 mb-3 d-flex justify-content-end gap-2">
+                        <a href="/" class="btn btn-secondary">Отмена</a>
+                        <button type="submit" class="btn btn-success">Опубликовать</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card p-4 shadow-sm">
+                <!-- Кнопка "Добавить фото" -->
+                <label for="photoInput" class="btn btn-outline-primary">+ Добавить фото</label>
+                <input type="file" id="photoInput" name="photos" multiple accept="image/*" style="display: none;">
+
+                <!-- Превью миниатюр -->
+                <div id="preview" class="preview-container"></div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Footer -->
+<footer th:include="fragments/footer :: footer"></footer>
+
+<!-- Передача данных модели в JS -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    window.typesJson = /*[(${typesJson})]*/ '[]';
+    /*]]>*/
+</script>
+
+<script src="/js/owners.js"></script>
+<script src="/js/category-type-select.js"></script>
+<script src="/js/image-select.js"></script>
+<script src="/js/image-modal.js"></script>
+
+<div th:replace="fragments/modal :: photoModal('createPhotoModal', 'createPrevImage', 'createNextImage', 'createModalImage')"></div>
+
+</body>
+</html>

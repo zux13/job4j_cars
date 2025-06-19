@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:include="fragments/header :: header"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Titlebar -->
+<div th:replace="fragments/titlebar :: titlebar"></div>
+
+<div class="container my-4 flex-grow-1">
+
+    <!-- Заголовок -->
+    <h2 th:text="${post.carName}" class="mb-4"></h2>
+
+    <div class="row g-4">
+        <!-- Блок изображений -->
+        <div class="col-md-5">
+            <div class="card p-3 shadow-sm" th:classappend="${post.sold} ? ' sold'">
+                <div class="position-relative">
+                    <img th:src="${post.base64images.isEmpty()}
+                               ? @{/images/default.jpg}
+                               : 'data:image/jpeg;base64,' + ${post.base64images[0]}"
+                         class="img-fluid rounded preview-image"
+                         style="cursor: pointer;"
+                         alt="Главное фото">
+
+                    <!-- SOLD overlay -->
+                    <img th:if="${post.sold}" th:src="@{/images/sold.png}"
+                         class="position-absolute top-50 start-50 translate-middle"
+                         style="max-width: 80%;">
+                </div>
+
+                <div class="d-flex flex-wrap gap-2" th:classappend="${post.base64images.size() > 1} ? ' mt-3'">
+                    <img th:each="img, iterStat : ${post.base64images.size() > 1
+                               ? post.base64images.subList(1, post.base64images.size())
+                               : null}"
+                         th:src="'data:image/jpeg;base64,' + ${img}"
+                         class="img-thumbnail preview-image"
+                         style="width: 75px; height: 75px; object-fit: cover; cursor: pointer;"
+                         alt="Фото">
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Блок описания -->
+        <div class="col-md-7">
+            <div class="card p-4 shadow-sm">
+
+                <!-- Кнопка редактирования -->
+                <a th:if="${user.login != 'Гость' and user.id == post.userId}"
+                   th:href="@{/posts/edit/{id}(id=${post.id})}"
+                   class="position-absolute top-0 end-0 m-2 btn btn-primary btn-sm d-flex align-items-center justify-content-center"
+                   style="width: 32px; height: 32px; font-size:18px">
+                    <i class="bi bi-pencil-square text-white"></i>
+                </a>
+
+                <!-- Характеристики -->
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <th style="width: 120px; white-space: nowrap;">Категория:</th>
+                                <td th:text="${post.categoryName}">Седан</td>
+                            </tr>
+                            <tr>
+                                <th style="width: 120px; white-space: nowrap;">Тип:</th>
+                                <td th:text="${post.typeName}">Универсал</td>
+                            </tr>
+                            <tr>
+                                <th style="width: 120px; white-space: nowrap;">Владельцев:</th>
+                                <td th:text="${post.ownersCount}">1</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <table class="table table-sm table-borderless">
+                            <tr>
+                                <th style="width: 120px; white-space: nowrap;">Марка:</th>
+                                <td th:text="${post.brandName}">Toyota</td>
+                            </tr>
+                            <tr>
+                                <th style="width: 120px; white-space: nowrap;">Двигатель:</th>
+                                <td th:text="${post.engineName}">1.8 бензин</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="mt-2">
+                    <strong>Описание:</strong>
+                    <p th:text="${post.description}" style="white-space: pre-line;" class="mt-1"></p>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between align-items-end mt-2">
+                    <!-- Метаинформация -->
+                    <div class="text-muted small">
+                        <div>Автор: <span th:text="${post.authorName}">Иванов И.И.</span></div>
+                        <div>Опубликовано: <span th:text="${#temporals.format(post.created, 'dd.MM.yyyy HH:mm')}">01.06.2025</span></div>
+                        <div>Статус:
+                            <span th:classappend="${post.sold} ? 'text-danger fw-semibold' : 'text-success fw-semibold'"
+                                  th:text="${post.sold} ? 'Продано' : 'Активно'">Активно</span>
+                        </div>
+                    </div>
+
+                    <!-- Цена -->
+                    <div class="text-end">
+                        <div class="d-flex flex-column align-items-end">
+                            <!-- Старая цена (если выше текущей) -->
+                            <span th:if="${post.previousPrice != null and post.previousPrice > post.currentPrice}"
+                                  class="text-muted text-decoration-line-through medium"
+                                  th:text="${#numbers.formatDecimal(post.previousPrice, 0, 'COMMA', 0, 'POINT')} + ' ₽'">
+                                1 100 000 ₽
+                            </span>
+
+                            <!-- Текущая цена -->
+                            <span th:classappend="${post.sold} ? ' bg-secondary' : 'bg-success' " class="badge fs-6"
+                                  th:text="${#numbers.formatDecimal(post.currentPrice, 1, 'COMMA', 0, 'POINT')} + ' ₽'">
+                                1 000 000 ₽
+                            </span>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer th:include="fragments/footer :: footer"></footer>
+
+<script src="/js/image-modal.js"></script>
+
+<div th:replace="fragments/modal :: photoModal('photoModal', 'prevImage', 'nextImage', 'modalImage')"></div>
+
+</body>
+</html>

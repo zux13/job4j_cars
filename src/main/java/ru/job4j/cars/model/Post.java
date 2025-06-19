@@ -31,10 +31,12 @@ public class Post {
 
     @OneToMany
     @JoinColumn(name = "auto_post_id")
+    @OrderBy("created DESC")
     private List<PriceHistory> priceHistoryList = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "auto_post_id")
+    @OrderBy("id ASC")
     private List<File> files = new ArrayList<>();
 
     @ManyToOne

@@ -1,0 +1,15 @@
+<div th:fragment="titlebar" class="bg-dark text-light py-3">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="nav-link d-inline text-light" th:href="@{/}">
+            <h1 class="h5 m-0">Автомобильная барахолка</h1>
+        </a>
+        <div th:if="${user.login == 'Гость'}">
+            <a class="nav-link d-inline text-light me-3" th:href="@{/users/register}">Регистрация</a>
+            <a class="nav-link d-inline text-light" th:href="@{/users/login}">Войти</a>
+        </div>
+        <div th:if="${user.login != 'Гость'}">
+            <a class="nav-link d-inline text-light me-3" href="#" th:text="${user.login}"></a>
+            <a class="nav-link d-inline text-light" th:href="@{/users/logout}">Выйти</a>
+        </div>
+    </div>
+</div>
