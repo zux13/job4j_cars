@@ -111,4 +111,33 @@ class UserRepositoryTest {
                 .extracting(User::getLogin)
                 .allMatch(login -> login.startsWith(baseLogin));
     }
+
+    @Test
+    void whenFindByLoginAndPasswordThenReturnUser() {
+        User user = new User();
+        user.setLogin("auth_user_" + System.nanoTime());
+        user.setPassword("secret");
+        userRepository.create(user);
+
+        Optional<User> found = userRepository.findByLoginAndPassword(user.getLogin(), user.getPassword());
+        assertThat(found).isPresent();
+        assertThat(found.get().getLogin()).isEqualTo(user.getLogin());
+    }
+
+    @Test
+    void whenCreateDuplicateLoginThenReturnsEmptyOptional() {
+        String login = "duplicate_" + System.nanoTime();
+
+        User user1 = new User();
+        user1.setLogin(login);
+        user1.setPassword("pwd1");
+        Optional<User> created1 = userRepository.create(user1);
+        assertThat(created1).isPresent();
+
+        User user2 = new User();
+        user2.setLogin(login);
+        user2.setPassword("pwd2");
+        Optional<User> created2 = userRepository.create(user2);
+        assertThat(created2).isEmpty();
+    }
 }

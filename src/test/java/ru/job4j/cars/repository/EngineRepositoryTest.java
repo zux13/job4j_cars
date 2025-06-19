@@ -92,4 +92,16 @@ class EngineRepositoryTest {
         assertThat(result).isNotEmpty();
         assertThat(result.getFirst().getName()).isEqualTo("SearchName");
     }
+
+    @Test
+    void whenFindByIdNotExistsThenEmpty() {
+        Optional<Engine> result = engineRepository.findById(-1);
+        assertThat(result).isEmpty();
+    }
+
+    @Test
+    void whenFindByNameNotExistsThenEmptyList() {
+        List<Engine> result = engineRepository.findByName("NonExistingEngine");
+        assertThat(result).isEmpty();
+    }
 }

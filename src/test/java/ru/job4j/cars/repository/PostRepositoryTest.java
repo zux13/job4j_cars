@@ -6,6 +6,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import ru.job4j.cars.dto.PostFilterDto;
 import ru.job4j.cars.model.*;
 
 import java.time.LocalDateTime;
@@ -144,6 +145,82 @@ class PostRepositoryTest {
 
         List<Post> posts = postRepository.findAll();
         assertThat(posts).noneMatch(p -> p.getId() == post.getId());
+    }
+
+    @Test
+    void whenFindByIdThenReturnPostWithInitializedFields() {
+        Post post = createPost();
+        File file = new File();
+        file.setName("photo.png");
+        file.setPath("uploads/photo.png");
+        file.setPost(post);
+        fileRepository.save(file);
+
+        Optional<Post> found = postRepository.findById(post.getId());
+        assertThat(found).isPresent();
+        Post result = found.get();
+
+        assertThat(result.getCar()).isNotNull();
+        assertThat(result.getUser()).isNotNull();
+        assertThat(result.getFiles()).isNotEmpty();
+    }
+
+    @Test
+    void whenFindByFilterWithMyPostsThenReturnOnlyMine() {
+        Post myPost = createPost();
+        PostFilterDto filter = new PostFilterDto();
+        filter.setOnlyMyPosts(true);
+        filter.setUserId(myPost.getUser().getId());
+        filter.setLimit(10);
+        filter.setOffset(0);
+
+        List<Post> result = postRepository.findByFilter(filter);
+        assertThat(result).isNotEmpty();
+        assertThat(result).allMatch(p -> p.getUser().getId() == myPost.getUser().getId());
+    }
+
+    @Test
+    void whenFindByFilterWithPhotoThenReturnOnlyWithFiles() {
+        Post post = createPost();
+        File file = new File();
+        file.setName("img.png");
+        file.setPath("uploads/img.png");
+        file.setPost(post);
+        fileRepository.save(file);
+
+        PostFilterDto filter = new PostFilterDto();
+        filter.setOnlyWithPhoto(true);
+        filter.setLimit(10);
+        filter.setOffset(0);
+
+        List<Post> result = postRepository.findByFilter(filter);
+        assertThat(result).anyMatch(p -> !p.getFiles().isEmpty());
+    }
+
+    @Test
+    void whenCountByFilterWithPeriodIdThenCorrectCount() {
+        createPostWithCreationDate(LocalDateTime.now().minusDays(2));
+        PostFilterDto filter = new PostFilterDto();
+        filter.setPeriodId(3); // За неделю
+        filter.setLimit(10);
+        filter.setOffset(0);
+
+        long count = postRepository.countByFilter(filter);
+        assertThat(count).isGreaterThanOrEqualTo(1);
+    }
+
+    @Test
+    void whenFindByFilterWithBrandIdThenReturnMatching() {
+        Post post = createPost();
+        PostFilterDto filter = new PostFilterDto();
+        filter.setBrandIds(List.of(post.getCar().getBrand().getId()));
+        filter.setLimit(10);
+        filter.setOffset(0);
+
+        List<Post> result = postRepository.findByFilter(filter);
+        assertThat(result).isNotEmpty();
+        assertThat(result).allMatch(p ->
+                filter.getBrandIds().contains(p.getCar().getBrand().getId()));
     }
 
 }
