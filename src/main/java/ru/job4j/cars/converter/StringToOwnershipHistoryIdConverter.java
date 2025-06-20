@@ -10,6 +10,8 @@ import java.util.regex.Pattern;
 @Component
 public class StringToOwnershipHistoryIdConverter implements Converter<String, OwnershipHistoryId> {
 
+    private static final Pattern PATTERN = Pattern.compile("carId=(\\d+),\\s*ownerId=(\\d+),\\s*historyId=(\\d+)");
+
     @Override
     public OwnershipHistoryId convert(String source) {
         if (source == null || source.trim().isEmpty()) {
@@ -17,16 +19,17 @@ public class StringToOwnershipHistoryIdConverter implements Converter<String, Ow
         }
 
         try {
-            Pattern pattern = Pattern.compile("carId=(\\d+),\\s*ownerId=(\\d+),\\s*historyId=(\\d+)");
-            Matcher matcher = pattern.matcher(source);
-            if (matcher.find()) {
-                int carId = Integer.parseInt(matcher.group(1));
-                int ownerId = Integer.parseInt(matcher.group(2));
-                int historyId = Integer.parseInt(matcher.group(3));
-                return new OwnershipHistoryId(carId, ownerId, historyId);
-            } else {
+            Matcher matcher = PATTERN.matcher(source);
+            if (!matcher.find()) {
                 throw new IllegalArgumentException("Invalid format: " + source);
             }
+
+            int carId = Integer.parseInt(matcher.group(1));
+            int ownerId = Integer.parseInt(matcher.group(2));
+            int historyId = Integer.parseInt(matcher.group(3));
+
+            return new OwnershipHistoryId(carId, ownerId, historyId);
+
         } catch (Exception e) {
             throw new IllegalArgumentException("Failed to convert: " + source, e);
         }
